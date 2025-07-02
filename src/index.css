@@ -117,12 +117,17 @@
   }
 
   .chapter-content {
-    @apply max-w-none prose prose-lg;
+    @apply prose prose-lg max-w-none;
     line-height: 1.7;
     color: hsl(var(--foreground));
   }
 
-  .chapter-content h1, .chapter-content h2, .chapter-content h3 {
+  .chapter-content h1, 
+  .chapter-content h2, 
+  .chapter-content h3,
+  .chapter-content h4,
+  .chapter-content h5,
+  .chapter-content h6 {
     @apply text-primary font-serif;
     font-weight: 600;
   }
@@ -134,5 +139,19 @@
 
   .chapter-content p:first-child {
     text-indent: 0;
+  }
+
+  /* Override prose styles for better reading */
+  .chapter-content.prose {
+    color: hsl(var(--foreground));
+  }
+
+  .chapter-content.prose strong {
+    color: hsl(var(--foreground));
+    font-weight: 600;
+  }
+
+  .chapter-content.prose em {
+    color: hsl(var(--foreground));
   }
 }
