@@ -10,6 +10,7 @@ export interface EpubChapter {
 export interface EpubMetadata {
   title: string;
   author: string;
+  cover?: string;
   chapters: EpubChapter[];
 }
 
@@ -17,6 +18,7 @@ export class EpubParser {
   private zip: JSZip | null = null;
   private opfPath: string = '';
   private basePath: string = '';
+  private imageCache: Map<string, string> = new Map();
 
   async parseEpub(file: File): Promise<EpubMetadata> {
     try {
@@ -25,12 +27,14 @@ export class EpubParser {
       // Find the OPF file
       await this.findOpfFile();
       
-      // Parse metadata and chapters
+      // Parse metadata, cover, and chapters
       const metadata = await this.extractMetadata();
+      const cover = await this.extractCover();
       const chapters = await this.extractChapters();
 
       return {
         ...metadata,
+        cover,
         chapters: chapters.sort((a, b) => a.order - b.order)
       };
     } catch (error) {
@@ -80,6 +84,45 @@ export class EpubParser {
     return { title, author };
   }
 
+  private async extractCover(): Promise<string | undefined> {
+    try {
+      const opfFile = this.zip?.file(this.opfPath);
+      if (!opfFile) return undefined;
+
+      const opfContent = await opfFile.async('text');
+      const parser = new DOMParser();
+      const opfXml = parser.parseFromString(opfContent, 'text/xml');
+
+      // Look for cover in metadata
+      const coverMeta = opfXml.querySelector('meta[name="cover"]');
+      if (coverMeta) {
+        const coverId = coverMeta.getAttribute('content');
+        if (coverId) {
+          const coverItem = opfXml.querySelector(`manifest item[id="${coverId}"]`);
+          const coverHref = coverItem?.getAttribute('href');
+          if (coverHref) {
+            return await this.getImageAsBlob(coverHref);
+          }
+        }
+      }
+
+      // Fallback: look for cover.jpg or similar
+      const coverFiles = ['cover.jpg', 'cover.jpeg', 'cover.png', 'Cover.jpg', 'Cover.jpeg', 'Cover.png'];
+      for (const coverFile of coverFiles) {
+        const fullPath = this.basePath ? `${this.basePath}/${coverFile}` : coverFile;
+        const file = this.zip?.file(fullPath);
+        if (file) {
+          return await this.getImageAsBlob(coverFile);
+        }
+      }
+
+      return undefined;
+    } catch (error) {
+      console.warn('Failed to extract cover:', error);
+      return undefined;
+    }
+  }
+
   private async extractChapters(): Promise<EpubChapter[]> {
     const opfFile = this.zip?.file(this.opfPath);
     if (!opfFile) throw new Error('OPF file not found');
@@ -111,13 +154,13 @@ export class EpubParser {
 
       try {
         const content = await chapterFile.async('text');
-        const cleanContent = this.cleanHtmlContent(content);
-        const title = this.extractChapterTitle(content) || `Chapter ${i + 1}`;
+        const processedContent = await this.processContent(content);
+        const title = this.extractChapterTitle(content, opfXml, idref) || `Chapter ${i + 1}`;
 
         chapters.push({
           id: idref,
           title,
-          content: cleanContent,
+          content: processedContent,
           order: i
         });
       } catch (error) {
@@ -128,13 +171,25 @@ export class EpubParser {
     return chapters;
   }
 
-  private cleanHtmlContent(html: string): string {
+  private async processContent(html: string): Promise<string> {
     const parser = new DOMParser();
     const doc = parser.parseFromString(html, 'text/html');
     
     // Remove script and style tags
     const scripts = doc.querySelectorAll('script, style');
     scripts.forEach(el => el.remove());
+
+    // Process images
+    const images = doc.querySelectorAll('img');
+    for (const img of images) {
+      const src = img.getAttribute('src');
+      if (src) {
+        const blobUrl = await this.getImageAsBlob(src);
+        if (blobUrl) {
+          img.setAttribute('src', blobUrl);
+        }
+      }
+    }
 
     // Get the body content or the whole document if no body
     const body = doc.body || doc.documentElement;
@@ -148,12 +203,75 @@ export class EpubParser {
       .trim();
   }
 
-  private extractChapterTitle(html: string): string | null {
+  private async getImageAsBlob(imagePath: string): Promise<string | null> {
+    try {
+      // Check cache first
+      if (this.imageCache.has(imagePath)) {
+        return this.imageCache.get(imagePath)!;
+      }
+
+      // Clean the path and try different variations
+      const cleanPath = imagePath.replace(/^\.\//, '');
+      const possiblePaths = [
+        cleanPath,
+        this.basePath ? `${this.basePath}/${cleanPath}` : cleanPath,
+        imagePath,
+        this.basePath ? `${this.basePath}/${imagePath}` : imagePath
+      ];
+
+      for (const path of possiblePaths) {
+        const imageFile = this.zip?.file(path);
+        if (imageFile) {
+          const blob = await imageFile.async('blob');
+          const blobUrl = URL.createObjectURL(blob);
+          this.imageCache.set(imagePath, blobUrl);
+          return blobUrl;
+        }
+      }
+
+      return null;
+    } catch (error) {
+      console.warn(`Failed to load image ${imagePath}:`, error);
+      return null;
+    }
+  }
+
+  private extractChapterTitle(html: string, opfXml: Document, chapterId: string): string | null {
+    // First try to get title from the manifest
+    const manifestItem = opfXml.querySelector(`manifest item[id="${chapterId}"]`);
+    const manifestTitle = manifestItem?.getAttribute('title');
+    if (manifestTitle) {
+      return manifestTitle;
+    }
+
+    // Try to get title from NCX/TOC if available
+    const navPoint = opfXml.querySelector(`navPoint[playOrder] text`);
+    if (navPoint?.textContent) {
+      return navPoint.textContent.trim();
+    }
+
+    // Parse HTML content for title
     const parser = new DOMParser();
     const doc = parser.parseFromString(html, 'text/html');
     
-    // Try to find title in various elements
-    const titleElement = doc.querySelector('h1, h2, h3, title');
-    return titleElement?.textContent?.trim() || null;
+    // Try to find title in various elements, prioritizing h1
+    const titleElement = doc.querySelector('h1') || 
+                        doc.querySelector('h2') || 
+                        doc.querySelector('h3') ||
+                        doc.querySelector('title') ||
+                        doc.querySelector('.chapter-title') ||
+                        doc.querySelector('.title');
+    
+    const title = titleElement?.textContent?.trim();
+    
+    // Clean up common chapter prefixes and artifacts
+    if (title) {
+      return title
+        .replace(/^(Chapter|CHAPTER|Ch\.?)\s*\d*:?\s*/i, '')
+        .replace(/^\d+\.?\s*/, '')
+        .trim();
+    }
+    
+    return null;
   }
 }

@@ -15,10 +15,11 @@ interface Chapter {
 interface EpubReaderProps {
   chapters: Chapter[];
   bookTitle: string;
+  cover?: string;
   onClose: () => void;
 }
 
-export function EpubReader({ chapters, bookTitle, onClose }: EpubReaderProps) {
+export function EpubReader({ chapters, bookTitle, cover, onClose }: EpubReaderProps) {
   const [currentChapterIndex, setCurrentChapterIndex] = useState(0);
   const [progress, setProgress] = useState(0);
 
@@ -138,6 +139,17 @@ export function EpubReader({ chapters, bookTitle, onClose }: EpubReaderProps) {
                   {currentChapter?.title}
                 </h1>
               </header>
+              
+              {/* Show cover image on first chapter if available */}
+              {currentChapterIndex === 0 && cover && (
+                <div className="flex justify-center mb-8">
+                  <img 
+                    src={cover} 
+                    alt={`${bookTitle} cover`}
+                    className="max-w-sm max-h-96 object-contain rounded-lg shadow-lg"
+                  />
+                </div>
+              )}
               
               <div 
                 className="chapter-content reading-text prose prose-lg max-w-none prose-headings:text-primary prose-p:text-foreground prose-strong:text-foreground prose-em:text-foreground"

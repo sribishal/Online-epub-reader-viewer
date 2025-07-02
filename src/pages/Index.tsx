@@ -43,6 +43,7 @@ const Index = () => {
       <EpubReader
         chapters={epubData.chapters}
         bookTitle={epubData.title}
+        cover={epubData.cover}
         onClose={handleCloseReader}
       />
     );
