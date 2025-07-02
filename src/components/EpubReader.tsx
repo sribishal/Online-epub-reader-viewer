@@ -140,7 +140,7 @@ export function EpubReader({ chapters, bookTitle, onClose }: EpubReaderProps) {
               </header>
               
               <div 
-                className="chapter-content reading-text"
+                className="chapter-content reading-text prose prose-lg max-w-none prose-headings:text-primary prose-p:text-foreground prose-strong:text-foreground prose-em:text-foreground"
                 dangerouslySetInnerHTML={{ 
                   __html: currentChapter?.content || '' 
                 }}
