@@ -20,7 +20,12 @@ npm i
 # Step 4: Start the development server with auto-reloading and an instant preview.
 npm run dev
 ```
-
+**Features**
+- Direct Epub reader
+- Dark mode, light mode
+- Elegant looks
+- Inbuilt logo
+- 
 **Edit a file directly in GitHub**
 
 - Navigate to the desired file(s).
