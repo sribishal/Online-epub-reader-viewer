@@ -25,7 +25,11 @@ npm run dev
 - Dark mode, light mode
 - Elegant looks
 - Inbuilt logo
-- 
+- Reading progress bar
+- Left and right page swipe button
+
+  [Demo](https://preview--digital-epub-oasis.lovable.app)
+  
 **Edit a file directly in GitHub**
 
 - Navigate to the desired file(s).
