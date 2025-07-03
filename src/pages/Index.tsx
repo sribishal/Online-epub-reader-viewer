@@ -51,18 +51,18 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b border-border bg-card/50 backdrop-blur-sm">
-        <div className="container mx-auto px-4 py-6">
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-primary/10">
-              <BookOpen className="h-6 w-6 text-primary" />
+      <header className="border-b border-border/50 bg-card/80 backdrop-blur-md">
+        <div className="container mx-auto px-4 py-8">
+          <div className="flex items-center gap-4">
+            <div className="p-3 rounded-xl bg-primary/10 border border-primary/20">
+              <BookOpen className="h-8 w-8 text-primary" />
             </div>
             <div>
-              <h1 className="text-2xl font-serif font-semibold text-primary">
+              <h1 className="text-3xl font-elegant font-semibold text-primary tracking-tight">
                 EPUB Reader
               </h1>
-              <p className="text-sm text-muted-foreground">
-                Upload and read your favorite books online
+              <p className="text-muted-foreground font-medium">
+                Upload and read your favorite books with modern elegance
               </p>
             </div>
           </div>

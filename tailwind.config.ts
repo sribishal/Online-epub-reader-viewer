@@ -19,8 +19,9 @@ export default {
 		},
 		extend: {
 			fontFamily: {
-				serif: ['Georgia', 'Times New Roman', 'serif'],
 				sans: ['Inter', 'system-ui', 'sans-serif'],
+				serif: ['Crimson Text', 'Georgia', 'Times New Roman', 'serif'],
+				elegant: ['Crimson Text', 'Georgia', 'serif'],
 			},
 			colors: {
 				border: 'hsl(var(--border))',

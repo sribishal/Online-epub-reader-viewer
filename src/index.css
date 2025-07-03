@@ -6,32 +6,32 @@
 
 @layer base {
   :root {
-    /* Reading-optimized backgrounds */
-    --background: 42 15% 97%;
-    --foreground: 25 25% 15%;
+    /* Modern elegant light theme */
+    --background: 0 0% 100%;
+    --foreground: 224 71% 4%;
 
-    /* Card and surface colors with warm paper feel */
-    --card: 42 20% 98%;
-    --card-foreground: 25 25% 15%;
+    /* Elegant card surfaces */
+    --card: 0 0% 100%;
+    --card-foreground: 224 71% 4%;
 
-    --popover: 42 20% 98%;
-    --popover-foreground: 25 25% 15%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 224 71% 4%;
 
-    /* Rich reading theme primary colors */
-    --primary: 25 50% 25%;
-    --primary-foreground: 42 50% 95%;
+    /* Sophisticated primary - deep navy */
+    --primary: 221 83% 53%;
+    --primary-foreground: 210 40% 98%;
 
-    /* Soft secondary with reading comfort */
-    --secondary: 42 25% 90%;
-    --secondary-foreground: 25 25% 15%;
+    /* Refined secondary */
+    --secondary: 210 40% 98%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
 
-    /* Muted reading text */
-    --muted: 42 20% 92%;
-    --muted-foreground: 25 15% 45%;
+    /* Subtle muted tones */
+    --muted: 210 40% 98%;
+    --muted-foreground: 215.4 16.3% 46.9%;
 
-    /* Warm accent for highlights */
-    --accent: 35 60% 85%;
-    --accent-foreground: 25 40% 20%;
+    /* Elegant accent */
+    --accent: 210 40% 98%;
+    --accent-foreground: 222.2 47.4% 11.2%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 42 50% 95%;
@@ -61,27 +61,27 @@
   }
 
   .dark {
-    /* Dark reading mode with warm undertones */
-    --background: 25 15% 8%;
-    --foreground: 42 25% 90%;
+    /* Modern elegant dark theme */
+    --background: 224 71% 4%;
+    --foreground: 213 31% 91%;
 
-    --card: 25 20% 10%;
-    --card-foreground: 42 25% 90%;
+    --card: 224 71% 4%;
+    --card-foreground: 213 31% 91%;
 
-    --popover: 25 20% 10%;
-    --popover-foreground: 42 25% 90%;
+    --popover: 224 71% 4%;
+    --popover-foreground: 213 31% 91%;
 
-    --primary: 42 40% 85%;
-    --primary-foreground: 25 30% 12%;
+    --primary: 217 91% 60%;
+    --primary-foreground: 222.2 47.4% 1.2%;
 
-    --secondary: 25 15% 15%;
-    --secondary-foreground: 42 25% 85%;
+    --secondary: 222.2 84% 4.9%;
+    --secondary-foreground: 210 40% 98%;
 
-    --muted: 25 15% 15%;
-    --muted-foreground: 42 15% 65%;
+    --muted: 223 47% 11%;
+    --muted-foreground: 215.4 16.3% 56.9%;
 
-    --accent: 35 40% 25%;
-    --accent-foreground: 42 40% 85%;
+    --accent: 216 34% 17%;
+    --accent-foreground: 210 40% 98%;
 
     --destructive: 0 62.8% 50%;
     --destructive-foreground: 42 25% 90%;
@@ -106,20 +106,22 @@
   }
 
   body {
-    @apply bg-background text-foreground font-serif;
+    @apply bg-background text-foreground font-sans antialiased;
   }
 
-  /* Reading typography optimizations */
+  /* Modern elegant typography */
   .reading-text {
-    @apply leading-relaxed text-foreground;
+    @apply leading-relaxed text-foreground font-elegant;
     font-feature-settings: "liga" 1, "kern" 1;
     text-rendering: optimizeLegibility;
   }
 
   .chapter-content {
-    line-height: 1.7;
+    line-height: 1.8;
     color: hsl(var(--foreground));
     max-width: none;
+    font-family: 'Crimson Text', Georgia, serif;
+    transition: font-size 0.2s ease;
   }
 
   .chapter-content h1, 
@@ -128,14 +130,15 @@
   .chapter-content h4,
   .chapter-content h5,
   .chapter-content h6 {
-    @apply text-primary font-serif;
+    @apply text-primary font-elegant;
     font-weight: 600;
-    margin-top: 2rem;
-    margin-bottom: 1rem;
+    margin-top: 2.5rem;
+    margin-bottom: 1.25rem;
+    letter-spacing: -0.025em;
   }
 
   .chapter-content p {
-    @apply mb-4;
+    @apply mb-6;
     text-indent: 1.5em;
   }
 
@@ -152,4 +155,10 @@
     color: hsl(var(--foreground));
     font-style: italic;
   }
+
+  /* Zoom levels */
+  .zoom-small { font-size: 0.875rem; }
+  .zoom-normal { font-size: 1rem; }
+  .zoom-large { font-size: 1.125rem; }
+  .zoom-extra-large { font-size: 1.25rem; }
 }
